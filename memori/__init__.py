@@ -13,11 +13,10 @@ from collections.abc import Callable
 from typing import Any
 from uuid import uuid4
 
-import psycopg
-
 from memori._config import Config
 from memori._exceptions import (
     MissingMemoriApiKeyError,
+    MissingPsycopgError,
     QuotaExceededError,
     UnsupportedLLMProviderError,
     warn_if_legacy_memorisdk_installed,
@@ -106,6 +105,11 @@ class Memori:
     def _get_default_connection(self) -> Callable[[], Any] | None:
         connection_string = os.environ.get("MEMORI_COCKROACHDB_CONNECTION_STRING", None)
         if connection_string:
+            try:
+                import psycopg
+            except ImportError as e:
+                raise MissingPsycopgError("CockroachDB") from e
+
             self.config.hosted = False
             return lambda: psycopg.connect(connection_string)
 
