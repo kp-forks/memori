@@ -62,7 +62,7 @@ def format_recalled_summary_lines(
             fact_map = cast(Mapping[str, object], fact)
             summaries_raw = fact_map.get("summaries")
         elif hasattr(fact, "summaries"):
-            summaries_raw = cast(object, fact.summaries)
+            summaries_raw = fact.summaries
 
         if not isinstance(summaries_raw, list):
             continue
@@ -71,13 +71,14 @@ def format_recalled_summary_lines(
         for summary in summaries_raw:
             if not isinstance(summary, Mapping):
                 continue
-            content = summary.get("content")
+            summary_map = cast(Mapping[str, object], summary)
+            content = summary_map.get("content")
             if not isinstance(content, str) or not content.strip():
                 continue
 
             summary_dict = {
                 "content": content,
-                "date_created": summary.get("date_created"),
+                "date_created": summary_map.get("date_created"),
             }
             if not has_primary_for_fact:
                 primary_summaries.append(summary_dict)
